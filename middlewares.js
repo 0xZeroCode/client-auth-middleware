@@ -19,16 +19,28 @@ class AuthorizationMiddlewareInitializer {
     return function (req, res, next) {
       var client = new RestClient(thisInitializer.authServer.host, thisInitializer.authServer.port);
 
-      var tokenHeader = req.get('Authorization');
+      var resourceUrl = '/ActionPermissions/' + thisInitializer.projectName + '/' + actionVerb + '/' + url + '/LoginRequired';
 
-      client.post('/Authorization', {
-        token: tokenHeader,
-        action: {url: url, actionVerb: actionVerb, moduleName: thisInitializer.projectName}
-      }, function (result, status) {
-        if (!result) return res.status(status).send();
-        if (!result.success) return res.send(result);
-        next();
+      client.get(resourceUrl, function(result) {
+        if (!result) {
+          return next();
+        }
+
+        authorize();
       });
+
+      function authorize() {
+        var tokenHeader = req.get('Authorization');
+
+        client.post('/Authorization', {
+          token: tokenHeader,
+          action: {url: url, actionVerb: actionVerb, moduleName: thisInitializer.projectName}
+        }, function (result, status) {
+          if (!result) return res.status(status).send();
+          if (!result.success) return res.send(result);
+          next();
+        });
+      }
     };
   }
 
