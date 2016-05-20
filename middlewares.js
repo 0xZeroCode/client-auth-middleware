@@ -19,9 +19,9 @@ class AuthorizationMiddlewareInitializer {
     return function (req, res, next) {
       var client = new RestClient(thisInitializer.authServer.host, thisInitializer.authServer.port);
 
-      var resourceUrl = '/ActionPermissions/' + thisInitializer.projectName + '/' + actionVerb + '/' + url + '/LoginRequired';
+      var resourceUrl = '/ActionPermissions/LoginRequired';
 
-      client.get(resourceUrl, function(result) {
+      client.post(resourceUrl, {moduleName: thisInitializer.projectName, actionVerb: actionVerb, url: url} function(result) {
         if (!result) {
           return next();
         }
