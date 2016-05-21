@@ -21,7 +21,7 @@ class AuthorizationMiddlewareInitializer {
 
       var resourceUrl = '/ActionPermissions/LoginRequired';
 
-      client.post(resourceUrl, {moduleName: thisInitializer.projectName, actionVerb: actionVerb, url: url} function(result) {
+      client.post(resourceUrl, {moduleName: thisInitializer.projectName, actionVerb: actionVerb, url: url}, function(result) {
         if (!result) {
           return next();
         }
