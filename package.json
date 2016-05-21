@@ -1,6 +1,6 @@
 {
   "name": "client-auth-middleware",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "client authorization middleware for express",
   "main": "middlewares.js",
   "repository": {
