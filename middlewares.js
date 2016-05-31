@@ -12,12 +12,17 @@ class AuthorizationMiddlewareInitializer {
   constructor(authServerHost, authServerPort, currentProjectName) {
     this.authServer = {host: authServerHost, port: authServerPort};
     this.projectName = currentProjectName;
+    this.logger = console;
+    this.client = new RestClient(this.authServer.host, this.authServer.port);
   }
 
-  middlewareByAction(url, actionVerb) {
+  authorizationMiddleware(baseUrl) {
     var thisInitializer = this;
     return function (req, res, next) {
-      var client = new RestClient(thisInitializer.authServer.host, thisInitializer.authServer.port);
+      var actionVerb = req.method.toLowerCase();
+      var url = mergeUrl(baseUrl, req.route.path);
+
+      var client = new RestClient(this.authServer.host, this.authServer.port);
 
       var resourceUrl = '/ActionPermissions/LoginRequired';
 
@@ -51,14 +56,35 @@ class AuthorizationMiddlewareInitializer {
     };
   }
 
-  initializeAuthorizationMiddlewares(router, dictionary, baseUrl) {
+  registerNewRoutes(router, baseUrl) {
+    this.logger.log('register routes');
+    var routes = router.stack.map(function (middleware) {
+      return middleware.route;
+    });
+
+    var client = new RestClient(this.authServer.host, this.authServer.port);
+
     var thisInitializer = this;
-    for (var verb in dictionary) {
-      dictionary[verb].forEach(function (url) {
-        router[verb](url, thisInitializer.middlewareByAction(mergeUrl(baseUrl, url), verb)); //router[verb], e.g router['get'] is same as router.get
+
+    routes.forEach(function (route) {
+      if (!route) return;
+
+      var url = mergeUrl(baseUrl, route.path);
+
+      Object.keys(route.methods).forEach(function (key) {
+        if (!route.methods[key]) return;
+
+        client.post('/ActionPermissions/newAction', {
+          action: {url: url, actionVerb: key, moduleName: thisInitializer.projectName}
+        }, function (result, status) {
+          if (!result || !result.success) {
+            thisInitializer.logger.error('status: ' + status + '.\nresult: ' + result + '\n');
+          }
+        });
       });
-    }
+    });
   }
+
 }
 
 
