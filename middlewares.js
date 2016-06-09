@@ -94,6 +94,6 @@ class AuthorizationMiddlewareInitializer {
 }
 
 
-module.exports = function (authServerHost, authServerPort, currentProjectName) {
-  return new AuthorizationMiddlewareInitializer(authServerHost, authServerPort, currentProjectName);
+module.exports = function (authServerHost, authServerPort, currentProjectName, onUnauthorized) {
+  return new AuthorizationMiddlewareInitializer(authServerHost, authServerPort, currentProjectName, onUnauthorized);
 };
