@@ -8,12 +8,15 @@ function mergeUrl(baseUrl, url) {
   return baseUrl + url;
 }
 
+const unauthorizedStatusCode = 401;
+
 class AuthorizationMiddlewareInitializer {
-  constructor(authServerHost, authServerPort, currentProjectName) {
+  constructor(authServerHost, authServerPort, currentProjectName, onUnauthorized) {
     this.authServer = {host: authServerHost, port: authServerPort};
     this.projectName = currentProjectName;
     this.logger = console;
     this.client = new RestClient(this.authServer.host, this.authServer.port);
+    this.onUnauthorized = onUnauthorized;
   }
 
   authorizationMiddleware(baseUrl) {
@@ -48,6 +51,9 @@ class AuthorizationMiddlewareInitializer {
           token: tokenHeader,
           action: {url: url, actionVerb: actionVerb, moduleName: thisInitializer.projectName}
         }, function (result, status) {
+          if (status === unauthorizedStatusCode && this.onUnauthorized) {
+            return this.onUnauthorized();
+          }
           if (!result) return res.status(status).send();
           if (!result.success) return res.send(result);
           next();
