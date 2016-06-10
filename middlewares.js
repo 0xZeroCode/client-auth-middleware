@@ -51,7 +51,7 @@ class AuthorizationMiddlewareInitializer {
           token: tokenHeader,
           action: {url: url, actionVerb: actionVerb, moduleName: thisInitializer.projectName}
         }, function (result, status) {
-          if (status === unauthorizedStatusCode && thisInitializer.onUnauthorized) {
+          if (status == 401 && thisInitializer.onUnauthorized) {
             return thisInitializer.onUnauthorized(req, res, next);
           }
           if (!result) return res.status(status).send();
