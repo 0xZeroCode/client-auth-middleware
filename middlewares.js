@@ -25,7 +25,7 @@ class AuthorizationMiddlewareInitializer {
       var actionVerb = req.method.toLowerCase();
       var url = mergeUrl(baseUrl, req.route.path);
 
-      var client = new RestClient(this.authServer.host, this.authServer.port);
+      var client = new RestClient(thisInitializer.authServer.host, thisInitializer.authServer.port);
 
       var resourceUrl = '/ActionPermissions/LoginRequired';
 
